@@ -4,6 +4,8 @@
 
 No installation required — just open the single HTML file in any modern browser. Turn it into a native-like desktop app on **Kubuntu / Ubuntu** in minutes.
 
+![TSM icon](https://raw.githubusercontent.com/DigiMancer3D/TSA/refs/heads/main/TSA_icon.png) 
+
 ## Quick Start on Kubuntu / Ubuntu
 
 1. Save your HTML file to a permanent location, for example:
