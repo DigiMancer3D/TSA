@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Technical Synth Machine</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; text-align: center; }
+        .sound-section { border: 1px solid #ccc; padding: 10px; margin: 10px 0; display: flex; flex-wrap: wrap; justify-content: space-between; }
+        .slider-box { display: flex; flex-direction: column; padding: 5px; box-sizing: border-box; text-align: center; position: relative; }
+        label { margin: 0; cursor: pointer; }
+        @media (max-width: 600px) { .slider-box { flex-basis: 50%; } }
+        @media (min-width: 601px) and (max-width: 1200px) { .slider-box { flex-basis: 33.33%; } }
+        @media (min-width: 1201px) and (max-width: 1800px) { .slider-box { flex-basis: 25%; } }
+        @media (min-width: 1801px) { .slider-box { flex-basis: 20%; } }
+        button { padding: 10px; margin: 10px 0; }
+        #sequencer { border: 1px solid #ccc; padding: 10px; margin: 10px 0; overflow-x: auto; }
+        .sequencer-row { display: flex; align-items: center; margin-bottom: 10px; }
+        .sequencer-label { flex: 0 0 60px; text-align: left; }
+        .sequencer-steps { display: flex; flex: 1; justify-content: space-between; }
+        .sequencer-step { flex: 1; text-align: center; min-width: 30px; }
+        .reset-options { display: none; }
+        .recording { color: red; }
+        .slider-controls { display: flex; align-items: center; }
+        .slider-controls button { width: 20px; height: 20px; font-size: 12px; padding: 0; margin: 0 2px; cursor: pointer; }
+        .slider-controls input[type="range"] { flex: 1; }
+        .value-display { width: 50px; text-align: center; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Technical Synth Machine</h1>
+    <p>Professional web-based synthesizer for creating traditional and modern electronic music: techno, dubstep, glitch, electro, rap/808 beats, leads, basses, pads, stabs, and experimental textures. Features multi-layer sound design, advanced sequencing, effects chain, preset management, and audio export.</p>
+
+    <div id="master-controls">
+        <h2>Master Controls</h2>
+        <div class="slider-box"><label>Compressor: <input type="checkbox" id="compressor-toggle" checked></label></div>
+        <div class="slider-box"><label for="compressor-threshold">Comp Threshold (-60-0 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="compressor-threshold" min="-60" max="0" value="-24" step="1"><button class="plus">+</button><span class="value-display">-24</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="compressor-ratio">Comp Ratio (1-20): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="compressor-ratio" min="1" max="20" value="8" step="1"><button class="plus">+</button><span class="value-display">8</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="compressor-makeup">Comp Makeup (0-24 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="compressor-makeup" min="0" max="24" value="8" step="1"><button class="plus">+</button><span class="value-display">8</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label>Delay: <input type="checkbox" id="delay-toggle"></label></div>
+        <div class="slider-box"><label for="delay-time">Delay Time (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="delay-time" min="0" max="2" value="0.35" step="0.01"><button class="plus">+</button><span class="value-display">0.35</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="delay-feedback">Delay Feedback (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="delay-feedback" min="0" max="1" value="0.4" step="0.01"><button class="plus">+</button><span class="value-display">0.4</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="bpm">BPM (30-300): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="bpm" min="30" max="300" value="128" step="1"><button class="plus">+</button><span class="value-display">128</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label>BPM Sync: <input type="checkbox" id="bpm-sync"></label></div>
+
+        <h3>Global EQ</h3>
+        <div class="slider-box"><label for="global-eq1-freq">Global EQ1 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq1-freq" min="20" max="20000" value="250" step="1"><button class="plus">+</button><span class="value-display">250</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="global-eq1-gain">Global EQ1 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq1-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="global-eq2-freq">Global EQ2 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq2-freq" min="20" max="20000" value="1000" step="1"><button class="plus">+</button><span class="value-display">1000</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="global-eq2-gain">Global EQ2 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq2-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="global-eq3-freq">Global EQ3 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq3-freq" min="20" max="20000" value="5000" step="1"><button class="plus">+</button><span class="value-display">5000</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+        <div class="slider-box"><label for="global-eq3-gain">Global EQ3 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="global-eq3-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+    </div>
+
+    <div id="sounds-container">
+        <div class="sound-section" data-sound-id="A">
+            <h2>Audio A: Synth</h2>
+            <div class="slider-box"><button class="play-sound">Play</button></div>
+            <div class="slider-box"><button class="stop-sound">Stop</button></div>
+            <div class="slider-box"><label>Start Preset: <select class="start-preset" name="start-preset"></select></label></div>
+            <div class="slider-box"><label>Mid Preset: <select class="mid-preset" name="mid-preset"></select></label></div>
+            <div class="slider-box"><label>End Preset: <select class="end-preset" name="end-preset"></select></label></div>
+            <div class="slider-box"><label>Loop: <input type="checkbox" class="loop"></label></div>
+            <div class="slider-box"><label for="gap">Loop Gap (0-3s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="gap" class="gap" min="0" max="3" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="fadeIn">Fade-In Time (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="fadeIn" class="fadeIn" min="0" max="2" value="0.05" step="0.01"><button class="plus">+</button><span class="value-display">0.05</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="fadeOut">Fade-Out Time (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="fadeOut" class="fadeOut" min="0" max="2" value="0.08" step="0.01"><button class="plus">+</button><span class="value-display">0.08</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="volume">Volume (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="volume" class="volume" min="0" max="1" value="0.7" step="0.01"><button class="plus">+</button><span class="value-display">0.7</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="pan">Pan (-1-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="pan" class="pan" min="-1" max="1" value="0" step="0.01"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="transition">Transition Time (0-5s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="transition" class="transition" min="0" max="5" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="pitch">Pitch (25-650 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="pitch" class="pitch" min="25" max="650" value="110" step="1"><button class="plus">+</button><span class="value-display">110</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="attack">Attack (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="attack" class="attack" min="0" max="2" value="0.05" step="0.01"><button class="plus">+</button><span class="value-display">0.05</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="decay">Decay (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="decay" class="decay" min="0" max="2" value="0.2" step="0.01"><button class="plus">+</button><span class="value-display">0.2</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="sustain">Sustain (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="sustain" class="sustain" min="0" max="1" value="0.8" step="0.01"><button class="plus">+</button><span class="value-display">0.8</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="release">Release (0-2s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="release" class="release" min="0" max="2" value="0.3" step="0.01"><button class="plus">+</button><span class="value-display">0.3</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="hold">Hold Duration (0.1-10s): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="hold" class="hold" min="0.1" max="10" value="2" step="0.1"><button class="plus">+</button><span class="value-display">2</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f1">F1 Freq (200-1000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f1" class="f1" min="200" max="1000" value="440"><button class="plus">+</button><span class="value-display">440</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g1">F1 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g1" class="g1" min="-40" max="40" value="25"><button class="plus">+</button><span class="value-display">25</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f2">F2 Freq (500-3000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f2" class="f2" min="500" max="3000" value="880"><button class="plus">+</button><span class="value-display">880</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g2">F2 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g2" class="g2" min="-40" max="40" value="20"><button class="plus">+</button><span class="value-display">20</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f3">F3 Freq (1000-4000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f3" class="f3" min="1000" max="4000" value="1320"><button class="plus">+</button><span class="value-display">1320</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g3">F3 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g3" class="g3" min="-40" max="40" value="15"><button class="plus">+</button><span class="value-display">15</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f4">F4 Freq (2000-5000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f4" class="f4" min="2000" max="5000" value="1760"><button class="plus">+</button><span class="value-display">1760</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g4">F4 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g4" class="g4" min="-40" max="40" value="12"><button class="plus">+</button><span class="value-display">12</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f5">F5 Freq (3000-6000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f5" class="f5" min="3000" max="6000" value="2200"><button class="plus">+</button><span class="value-display">2200</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g5">F5 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g5" class="g5" min="-40" max="40" value="10"><button class="plus">+</button><span class="value-display">10</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="f6">F6 Freq (3000-7000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="f6" class="f6" min="3000" max="7000" value="2640"><button class="plus">+</button><span class="value-display">2640</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="g6">F6 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="g6" class="g6" min="-40" max="40" value="8"><button class="plus">+</button><span class="value-display">8</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <h3>Per-Sound EQ</h3>
+            <div class="slider-box"><label for="eq1-freq">EQ1 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq1-freq" class="eq1-freq" min="20" max="20000" value="250" step="1"><button class="plus">+</button><span class="value-display">250</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="eq1-gain">EQ1 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq1-gain" class="eq1-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="eq2-freq">EQ2 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq2-freq" class="eq2-freq" min="20" max="20000" value="1000" step="1"><button class="plus">+</button><span class="value-display">1000</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="eq2-gain">EQ2 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq2-gain" class="eq2-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="eq3-freq">EQ3 Freq (20-20000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq3-freq" class="eq3-freq" min="20" max="20000" value="5000" step="1"><button class="plus">+</button><span class="value-display">5000</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="eq3-gain">EQ3 Gain (-40-40 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="eq3-gain" class="eq3-gain" min="-40" max="40" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="hummingStrength">Humming Strength (0-30 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="hummingStrength" class="hummingStrength" min="0" max="30" value="0"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="hummingDepth">Humming Depth (100-500 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="hummingDepth" class="hummingDepth" min="100" max="500" value="175"><button class="plus">+</button><span class="value-display">175</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="hummingAmount">Humming Amount (1-20): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="hummingAmount" class="hummingAmount" min="1" max="20" value="10" step="1"><button class="plus">+</button><span class="value-display">10</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="breathinessStrength">Breathiness Strength (0-0.2): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="breathinessStrength" class="breathinessStrength" min="0" max="0.2" value="0" step="0.01"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="breathinessDepth">Breathiness Depth (500-2000 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="breathinessDepth" class="breathinessDepth" min="500" max="2000" value="1795"><button class="plus">+</button><span class="value-display">1795</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="breathinessAmount">Breathiness Amount (0.1-2): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="breathinessAmount" class="breathinessAmount" min="0.1" max="2" value="1.2" step="0.1"><button class="plus">+</button><span class="value-display">1.2</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="jawJitterStrength">Jaw Jitter Strength (0-20 cents): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="jawJitterStrength" class="jawJitterStrength" min="0" max="20" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="jawJitterDepth">Jaw Jitter Depth (0-50 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="jawJitterDepth" class="jawJitterDepth" min="0" max="50" value="41" step="1"><button class="plus">+</button><span class="value-display">41</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="jawJitterAmount">Jaw Jitter Amount (0-1 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="jawJitterAmount" class="jawJitterAmount" min="0" max="1" value="0.77" step="0.1"><button class="plus">+</button><span class="value-display">0.77</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="detune">Detune Cents (-1200-1200): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="detune" class="detune" min="-1200" max="1200" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="vibratoRate">Vibrato Rate (0-10 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="vibratoRate" class="vibratoRate" min="0" max="10" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="vibratoDepth">Vibrato Depth (0-200 cents): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="vibratoDepth" class="vibratoDepth" min="0" max="200" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="reverb">Reverb Wet (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="reverb" class="reverb" min="0" max="1" value="0.2" step="0.01"><button class="plus">+</button><span class="value-display">0.2</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="pitchJitterRate">Pitch Jitter Rate (0-2 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="pitchJitterRate" class="pitchJitterRate" min="0" max="2" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="pitchJitterDepth">Pitch Jitter Depth (0-20 cents): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="pitchJitterDepth" class="pitchJitterDepth" min="0" max="20" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="amplitudeShimmerRate">Amplitude Shimmer Rate (0-2 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="amplitudeShimmerRate" class="amplitudeShimmerRate" min="0" max="2" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="amplitudeShimmerDepth">Amplitude Shimmer Depth (0-0.2): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="amplitudeShimmerDepth" class="amplitudeShimmerDepth" min="0" max="0.2" value="0" step="0.01"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label>Waveform: <select class="waveform" name="waveform">
+                <option value="glottal">Glottal</option>
+                <option value="sine">Sine</option>
+                <option value="sawtooth" selected>Sawtooth</option>
+                <option value="square">Square</option>
+            </select></label></div>
+            <div class="slider-box"><label>Distortion: <input type="checkbox" class="distortion-toggle"></label></div>
+            <div class="slider-box"><label for="distortion-intensity">Dist Intensity (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="distortion-intensity" class="distortion-intensity" min="0" max="1" value="0" step="0.01"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="distortion-threshold">Dist Threshold (0-1): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="distortion-threshold" class="distortion-threshold" min="0" max="1" value="0.5" step="0.01"><button class="plus">+</button><span class="value-display">0.5</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label>Chorus: <input type="checkbox" class="chorus-toggle"></label></div>
+            <div class="slider-box"><label for="chorus-rate">Chorus Rate (0-10 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="chorus-rate" class="chorus-rate" min="0" max="10" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="chorus-depth">Chorus Depth (0-50%): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="chorus-depth" class="chorus-depth" min="0" max="50" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label>LFO Assign: <select class="lfo-assign" name="lfo-assign">
+                <option value="none">None</option>
+                <option value="f1">F1 Freq</option>
+                <option value="g1">F1 Gain</option>
+                <option value="f2">F2 Freq</option>
+                <option value="g2">F2 Gain</option>
+                <option value="f3">F3 Freq</option>
+                <option value="g3">F3 Gain</option>
+                <option value="f4">F4 Freq</option>
+                <option value="g4">F4 Gain</option>
+                <option value="f5">F5 Freq</option>
+                <option value="g5">F5 Gain</option>
+                <option value="f6">F6 Freq</option>
+                <option value="g6">F6 Gain</option>
+            </select></label></div>
+            <div class="slider-box"><label for="lfo-rate">LFO Rate (0-10 Hz): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="lfo-rate" class="lfo-rate" min="0" max="10" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label for="lfo-depth">LFO Depth (0-100%): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="lfo-depth" class="lfo-depth" min="0" max="100" value="0" step="1"><button class="plus">+</button><span class="value-display">0</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><label>Noise Gate: <input type="checkbox" class="noise-gate-toggle"></label></div>
+            <div class="slider-box"><label for="noise-gate-threshold">Gate Threshold (-60-0 dB): </label><div class="slider-controls"><button class="minus">-</button><input type="range" id="noise-gate-threshold" class="noise-gate-threshold" min="-60" max="0" value="-30" step="1"><button class="plus">+</button><span class="value-display">-30</span></div><div class="reset-options"><button class="reset-slider">Reset</button><button class="cancel-reset">Cancel</button></div></div>
+            <div class="slider-box"><button class="reset-sound">Reset</button></div>
+            <div class="slider-box"><button class="save-preset">Save Preset</button></div>
+            <div class="slider-box"><label>Load Preset: <select class="load-preset" name="load-preset"><option value="">--Select--</option></select></label></div>
+            <div class="slider-box"><button class="export-preset">Export Preset</button></div>
+            <div class="slider-box"><input type="file" class="import-preset" accept=".preasm,.json" style="display:none;"><button class="import-btn">Import Preset</button></div>
+            <div class="slider-box"><button class="export-sound">Export Sound</button></div>
+        </div>
+    </div>
+    <button id="addSound">Add Sound</button>
+    <div id="sequencer">
+        <h2>Sequencer</h2>
+        <div id="sequencer-rows"></div>
+        <button id="playSequence">Play Sequence</button>
+        <button id="stopSequence">Stop Sequence</button>
+        <button id="increaseSequence">Increase Sequence</button>
+        <button id="decreaseSequence">Decrease Sequence</button>
+        <label>Sequence Loop Gap (0-3s): <div class="slider-controls"><button class="minus">-</button><input type="range" id="sequenceGap" min="0" max="3" value="0" step="0.1"><button class="plus">+</button><span class="value-display">0</span></div></label>
+        <label>Loop Sequence: <input type="checkbox" id="loopSequence"></label>
+        <button class="save-sequence">Save Sequence</button>
+        <label>Load Sequence: <select id="load-sequence" name="load-sequence"><option value="">--Select--</option></select></label>
+        <button class="export-sequence">Export Sequence</button>
+        <input type="file" id="import-sequence" accept=".preasm,.json" style="display:none;"><button class="import-sequence-btn">Import Sequence</button>
+        <button id="export-sequence-audio">Export Sequence Audio</button>
+        <input type="file" id="import-audio" accept="audio/*" style="display:none;"><button id="import-audio-btn">Import Audio</button>
+    </div>
+    <div id="recording">
+        <h2>Mic Recording</h2>
+        <button id="startRecord">Start Record</button>
+        <button id="stopRecord">Stop Record</button>
+        <button id="playRecord">Play Record</button>
+        <button id="exportRecord">Export Record</button>
+        <span id="recordTimer">00:00</span>
+        <audio id="recordPlayer" controls></audio>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const masterGain = audioCtx.createGain();
+        let globalCompressor = null;
+        let globalMakeup = null;
+        let globalDelay = null;
+        let globalFeedback = null;
+        let globalDelayWet = null;
+        let globalDelayDry = null;
+        let globalEQ1 = null;
+        let globalEQ2 = null;
+        let globalEQ3 = null;
+        masterGain.connect(audioCtx.destination);
+
+        let sounds = {};
+        let soundCount = 1;
+        let sequencerSteps = 8;
+        let sequenceIsLooping = false;
+        let sequenceStepTimeout = null;
+        let isPlayingSequence = false;
+        let currentStep = 0;
+
+        document.addEventListener('click', () => audioCtx.resume(), {once: true});
+
+        function createGlottalWave(ctx) {
+            const real = new Float32Array(32);
+            const imag = new Float32Array(32);
+            for (let i = 1; i < 32; i++) real[i] = 1 / (i * i);
+            return ctx.createPeriodicWave(real, imag, {disableNormalization: true});
+        }
+
+        function createOscillator(ctx, freq, wave, waveform) {
+            const osc = ctx.createOscillator();
+            if (waveform !== 'glottal') osc.type = waveform; else osc.setPeriodicWave(wave);
+            osc.frequency.value = freq;
+            return osc;
+        }
+
+        function createPeakingFilter(ctx, freq, q, gain) {
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'peaking';
+            filter.frequency.value = freq;
+            filter.Q.value = q;
+            filter.gain.value = gain;
+            return filter;
+        }
+
+        function createGainNode(ctx, value = 1) {
+            const gain = ctx.createGain();
+            gain.gain.value = value;
+            return gain;
+        }
+
+        function chainNodes(nodes) {
+            for (let i = 0; i < nodes.length - 1; i++) nodes[i].connect(nodes[i + 1]);
+            return nodes;
+        }
+
+        function createReverb(ctx) {
+            const reverbNode = ctx.createConvolver();
+            const length = ctx.sampleRate * 3;
+            const decay = 2;
+            const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const data = impulse.getChannelData(ch);
+                for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+            }
+            reverbNode.buffer = impulse;
+            return reverbNode;
+        }
+
+        function makeDistortionCurve(amount) {
+            let k = typeof amount === 'number' ? amount : 50;
+            let n_samples = 44100;
+            let curve = new Float32Array(n_samples);
+            let deg = Math.PI / 180;
+            for (let i = 0; i < n_samples; ++i) {
+                let x = i * 2 / n_samples - 1;
+                curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+            }
+            return curve;
+        }
+
+        // Full preset list including all blanks
+        const synthPresets = {
+            "Sine Lead": { f1: 440, g1: 25, f2: 880, g2: 15, f3: 1320, g3: 10, f4: 1760, g4: 8, f5: 2200, g5: 6, f6: 2640, g6: 4 },
+            "Saw Lead": { f1: 220, g1: 28, f2: 440, g2: 22, f3: 660, g3: 18, f4: 880, g4: 14, f5: 1320, g5: 10, f6: 1760, g6: 8 },
+            "Square Bass": { f1: 55, g1: 32, f2: 110, g2: 28, f3: 220, g3: 20, f4: 440, g4: 15, f5: 880, g5: 10, f6: 1320, g6: 6 },
+            "Classic Techno Stab": { f1: 220, g1: 30, f2: 440, g2: 25, f3: 880, g3: 18, f4: 1320, g4: 12, f5: 1760, g5: 8, f6: 2200, g6: 5 },
+            "Dubstep Wobble": { f1: 40, g1: 35, f2: 80, g2: 30, f3: 160, g3: 25, f4: 320, g4: 20, f5: 640, g5: 15, f6: 1280, g6: 10 },
+            "Modern Dub Growl": { f1: 45, g1: 34, f2: 90, g2: 29, f3: 180, g3: 24, f4: 360, g4: 19, f5: 720, g5: 14, f6: 1440, g6: 9 },
+            "Glitch Bass": { f1: 60, g1: 25, f2: 180, g2: 22, f3: 540, g3: 18, f4: 1080, g4: 12, f5: 1620, g5: 8, f6: 2160, g6: 5 },
+            "808 Sub": { f1: 35, g1: 40, f2: 70, g2: 32, f3: 105, g3: 18, f4: 140, g4: 10, f5: 175, g5: 6, f6: 210, g6: 4 },
+            "Electro Arp": { f1: 330, g1: 24, f2: 660, g2: 20, f3: 990, g3: 16, f4: 1320, g4: 12, f5: 1650, g5: 9, f6: 1980, g6: 6 },
+            "Techno Pad": { f1: 220, g1: 20, f2: 440, g2: 18, f3: 660, g3: 15, f4: 880, g4: 12, f5: 1320, g5: 10, f6: 1760, g6: 8 },
+            "Glitch Pluck": { f1: 280, g1: 26, f2: 840, g2: 22, f3: 1680, g3: 16, f4: 2520, g4: 12, f5: 3360, g5: 9, f6: 4200, g6: 6 },
+            "Rap 808": { f1: 50, g1: 38, f2: 100, g2: 30, f3: 150, g3: 15, f4: 200, g4: 10, f5: 250, g5: 6, f6: 300, g6: 4 },
+            "Modern Techno Lead": { f1: 440, g1: 26, f2: 880, g2: 22, f3: 1320, g3: 18, f4: 1760, g4: 14, f5: 2200, g5: 10, f6: 2640, g6: 7 },
+            "Acid Line": { f1: 110, g1: 30, f2: 220, g2: 25, f3: 440, g3: 20, f4: 880, g4: 15, f5: 1320, g5: 10, f6: 1760, g6: 8 },
+            "Trance Supersaw": { f1: 220, g1: 28, f2: 440, g2: 24, f3: 660, g3: 20, f4: 880, g4: 18, f5: 1320, g5: 15, f6: 1760, g6: 12 },
+            "Glitchy Stab": { f1: 180, g1: 25, f2: 540, g2: 20, f3: 1080, g3: 18, f4: 1620, g4: 14, f5: 2160, g5: 10, f6: 2700, g6: 8 },
+            "Techno Kick": { f1: 60, g1: 35, f2: 120, g2: 28, f3: 240, g3: 15, f4: 480, g4: 10, f5: 960, g5: 6, f6: 1920, g6: 4 },
+            "Dubstep Bass": { f1: 50, g1: 38, f2: 100, g2: 32, f3: 200, g3: 25, f4: 400, g4: 20, f5: 800, g5: 15, f6: 1600, g6: 10 },
+            "Glitch Perc": { f1: 800, g1: 22, f2: 1600, g2: 18, f3: 2400, g3: 15, f4: 3200, g4: 12, f5: 4000, g5: 10, f6: 5000, g6: 8 },
+            "Melodic House Lead": { f1: 330, g1: 26, f2: 660, g2: 22, f3: 990, g3: 18, f4: 1320, g4: 14, f5: 1650, g5: 10, f6: 1980, g6: 7 },
+            "Trap 808": { f1: 40, g1: 40, f2: 80, g2: 35, f3: 120, g3: 20, f4: 160, g4: 12, f5: 200, g5: 8, f6: 240, g6: 5 },
+            "Hardstyle Stab": { f1: 220, g1: 32, f2: 440, g2: 28, f3: 880, g3: 22, f4: 1320, g4: 18, f5: 1760, g5: 14, f6: 2200, g6: 10 },
+            "Ambient Pad": { f1: 180, g1: 18, f2: 360, g2: 15, f3: 540, g3: 12, f4: 720, g4: 10, f5: 1080, g5: 8, f6: 1440, g6: 6 },
+            "Breakbeat Snare": { f1: 300, g1: 25, f2: 900, g2: 20, f3: 1800, g3: 18, f4: 2700, g4: 15, f5: 3600, g5: 12, f6: 4500, g6: 10 },
+            "Future Bass Pluck": { f1: 440, g1: 28, f2: 880, g2: 24, f3: 1320, g3: 20, f4: 1760, g4: 16, f5: 2200, g5: 12, f6: 2640, g6: 9 },
+            "Industrial Noise": { f1: 500, g1: 20, f2: 1500, g2: 25, f3: 3000, g3: 30, f4: 4500, g4: 25, f5: 6000, g5: 20, f6: 7000, g6: 15 },
+
+            // Blank gap presets
+            "Blank 0.1s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 0.5s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 0.8s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 1s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 1.3s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 1.6s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 1.9s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 2s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 2.2s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 2.4s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 2.6s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 },
+            "Blank 3s": { f1: 200, g1: -60, f2: 500, g2: -60, f3: 1000, g3: -60, f4: 2000, g4: -60, f5: 3000, g5: -60, f6: 4000, g6: -60 }
+        };
+
+        function populatePresetDropdowns() {
+            document.querySelectorAll('.start-preset, .mid-preset, .end-preset').forEach(select => {
+                select.innerHTML = '<option value="">--Select--</option>';
+                Object.keys(synthPresets).forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function populateSequenceDropdown() {
+            let sequences = JSON.parse(localStorage.getItem('asm_sequences') || '[]');
+            const select = document.getElementById('load-sequence');
+            select.innerHTML = '<option value="">--Select--</option>';
+            sequences.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.name;
+                option.textContent = s.name;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('addSound').addEventListener('click', () => {
+            soundCount++;
+            const label = String.fromCharCode(64 + soundCount);
+            const newSoundSection = document.querySelector('.sound-section').cloneNode(true);
+            newSoundSection.dataset.soundId = label;
+            newSoundSection.querySelector('h2').textContent = `Audio ${label}: Synth`;
+            document.getElementById('sounds-container').appendChild(newSoundSection);
+            initSound(label, newSoundSection);
+            addFineTuneButtons(newSoundSection);
+            addSequencerRow(label);
+            populatePresetDropdowns();
+        });
+
+        function initSound(id, section, type = 'sound') {
+            sounds[id] = {
+                section: section,
+                type: type,
+                osc1: null,
+                osc2: null,
+                oscGain: null,
+                envelope: null,
+                fadeGain: null,
+                dry: null,
+                wet: null,
+                formants: [],
+                nasal: null,
+                lfo: null,
+                lfoGain: null,
+                jitterLFO: null,
+                jitterGain: null,
+                shimmerLFO: null,
+                shimmerGain: null,
+                formantLFO: null,
+                formantLFOGain: null,
+                breathNoise: null,
+                breathFilter: null,
+                breathGain: null,
+                timeout: null,
+                loopTimeout: null,
+                isLooping: false,
+                isPlaying: false,
+                buffer: null,
+                source: null,
+                panner: null,
+                distortion: null,
+                chorusLfo: null,
+                chorusDelay: null,
+                chorusWet: null,
+                chorusDry: null,
+                additionalLfo: null,
+                additionalLfoGain: null,
+                additionalLfoTarget: null,
+                noiseGate: null,
+                eq1: null,
+                eq2: null,
+                eq3: null
+            };
+
+            const playButton = section.querySelector('.play-sound');
+            playButton.addEventListener('click', () => {
+                audioCtx.resume();
+                if (sounds[id].isPlaying) {
+                    pauseSound(id);
+                    sounds[id].isPlaying = false;
+                    playButton.textContent = 'Play';
+                } else {
+                    startSound(id);
+                    sounds[id].isPlaying = true;
+                    playButton.textContent = 'Pause';
+                }
+            });
+
+            section.querySelector('.stop-sound').addEventListener('click', () => {
+                hardStop(id);
+                playButton.textContent = 'Play';
+            });
+
+            section.querySelector('.reset-sound').addEventListener('click', () => resetSound(id));
+
+            section.querySelectorAll('.slider-box label').forEach(label => {
+                label.addEventListener('click', () => {
+                    const options = label.parentNode.querySelector('.reset-options');
+                    if (options) {
+                        options.style.display = 'block';
+                        label.style.display = 'none';
+                    }
+                });
+            });
+
+            section.querySelectorAll('.reset-slider').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const sliderBox = e.target.closest('.slider-box');
+                    const input = sliderBox.querySelector('input[type="range"]');
+                    const checkbox = sliderBox.querySelector('input[type="checkbox"]');
+                    const select = sliderBox.querySelector('select');
+                    if (input) {
+                        input.value = input.getAttribute('data-default');
+                        input.dispatchEvent(new Event('input'));
+                        updateValueDisplay(input);
+                    } else if (checkbox) {
+                        checkbox.checked = checkbox.getAttribute('data-default') === 'true';
+                    } else if (select) {
+                        select.value = select.getAttribute('data-default');
+                        select.dispatchEvent(new Event('change'));
+                    }
+                    const options = sliderBox.querySelector('.reset-options');
+                    const label = sliderBox.querySelector('label');
+                    options.style.display = 'none';
+                    label.style.display = 'block';
+                });
+            });
+
+            section.querySelectorAll('.cancel-reset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const sliderBox = e.target.closest('.slider-box');
+                    const options = sliderBox.querySelector('.reset-options');
+                    const label = sliderBox.querySelector('label');
+                    options.style.display = 'none';
+                    label.style.display = 'block';
+                });
+            });
+
+            section.querySelectorAll('input[type="range"]').forEach(input => {
+                if (!input.hasAttribute('data-default')) input.setAttribute('data-default', input.value);
+            });
+            section.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                if (!input.hasAttribute('data-default')) input.setAttribute('data-default', input.checked);
+            });
+            section.querySelectorAll('select').forEach(select => {
+                if (!select.hasAttribute('data-default')) select.setAttribute('data-default', select.value);
+            });
+
+            const volumeSlider = section.querySelector('.volume');
+            if (volumeSlider) volumeSlider.addEventListener('input', () => updateVolumeAndWet(id));
+            const reverbSlider = section.querySelector('.reverb');
+            if (reverbSlider) reverbSlider.addEventListener('input', () => updateVolumeAndWet(id));
+            const panSlider = section.querySelector('.pan');
+            if (panSlider) panSlider.addEventListener('input', (e) => {
+                if (sounds[id].panner) sounds[id].panner.pan.value = parseFloat(e.target.value);
+            });
+
+            ['.eq1-freq', '.eq1-gain', '.eq2-freq', '.eq2-gain', '.eq3-freq', '.eq3-gain'].forEach(cls => {
+                const el = section.querySelector(cls);
+                if (el) el.addEventListener('input', () => {
+                    if (sounds[id].isPlaying) {
+                        hardStop(id);
+                        startSound(id);
+                    }
+                });
+            });
+
+            if (type === 'sound') {
+                section.querySelector('.pitch').addEventListener('input', (e) => {
+                    if (sounds[id].osc1) {
+                        const pitch = parseFloat(e.target.value);
+                        const detune = parseFloat(section.querySelector('.detune').value);
+                        sounds[id].osc1.frequency.value = pitch;
+                        sounds[id].osc2.frequency.value = pitch * Math.pow(2, detune / 1200);
+                    }
+                });
+                section.querySelector('.detune').addEventListener('input', (e) => {
+                    if (sounds[id].osc1) {
+                        const pitch = parseFloat(section.querySelector('.pitch').value);
+                        const detune = parseFloat(e.target.value);
+                        sounds[id].osc2.frequency.value = pitch * Math.pow(2, detune / 1200);
+                    }
+                });
+                section.querySelector('.vibratoRate').addEventListener('input', (e) => {
+                    if (sounds[id].lfo) sounds[id].lfo.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.vibratoDepth').addEventListener('input', (e) => {
+                    if (sounds[id].lfoGain) sounds[id].lfoGain.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.hummingStrength').addEventListener('input', (e) => {
+                    if (sounds[id].nasal) sounds[id].nasal.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.hummingDepth').addEventListener('input', (e) => {
+                    if (sounds[id].nasal) sounds[id].nasal.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.hummingAmount').addEventListener('input', (e) => {
+                    if (sounds[id].nasal) sounds[id].nasal.Q.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.breathinessStrength').addEventListener('input', (e) => {
+                    if (sounds[id].breathGain) sounds[id].breathGain.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.breathinessDepth').addEventListener('input', (e) => {
+                    if (sounds[id].breathFilter) sounds[id].breathFilter.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.breathinessAmount').addEventListener('input', (e) => {
+                    if (sounds[id].breathFilter) sounds[id].breathFilter.Q.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.jawJitterStrength').addEventListener('input', (e) => {
+                    if (sounds[id].formantLFOGain) sounds[id].formantLFOGain.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.jawJitterDepth').addEventListener('input', (e) => {
+                    if (sounds[id].formantLFO) sounds[id].formantLFO.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.jawJitterAmount').addEventListener('input', (e) => {
+                    if (sounds[id].formantLFO) sounds[id].formantLFO.frequency.value = parseFloat(e.target.value);
+                });
+                ['.f1', '.g1', '.f2', '.g2', '.f3', '.g3', '.f4', '.g4', '.f5', '.g5', '.f6', '.g6'].forEach((className, idx) => {
+                    section.querySelector(className).addEventListener('input', (e) => {
+                        const idxFormant = Math.floor(idx / 2);
+                        if (sounds[id].formants[idxFormant]) {
+                            if (idx % 2 === 0) {
+                                sounds[id].formants[idxFormant].frequency.value = parseFloat(e.target.value);
+                            } else {
+                                sounds[id].formants[idxFormant].gain.value = parseFloat(e.target.value);
+                            }
+                        }
+                    });
+                });
+                section.querySelector('.pitchJitterRate').addEventListener('input', (e) => {
+                    if (sounds[id].jitterLFO) sounds[id].jitterLFO.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.pitchJitterDepth').addEventListener('input', (e) => {
+                    if (sounds[id].jitterGain) sounds[id].jitterGain.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.amplitudeShimmerRate').addEventListener('input', (e) => {
+                    if (sounds[id].shimmerLFO) sounds[id].shimmerLFO.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.amplitudeShimmerDepth').addEventListener('input', (e) => {
+                    if (sounds[id].shimmerGain) sounds[id].shimmerGain.gain.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.start-preset').addEventListener('change', (e) => {
+                    const presetName = e.target.value;
+                    if (synthPresets[presetName]) {
+                        const preset = synthPresets[presetName];
+                        ['.f1', '.g1', '.f2', '.g2', '.f3', '.g3', '.f4', '.g4', '.f5', '.g5', '.f6', '.g6'].forEach((className, idx) => {
+                            const key = ['f1', 'g1', 'f2', 'g2', 'f3', 'g3', 'f4', 'g4', 'f5', 'g5', 'f6', 'g6'][idx];
+                            const slider = section.querySelector(className);
+                            if (slider) {
+                                slider.value = preset[key];
+                                slider.dispatchEvent(new Event('input'));
+                                updateValueDisplay(slider);
+                            }
+                        });
+
+                        // Auto-set hold for blank presets
+                        if (presetName.startsWith("Blank ")) {
+                            const durationStr = presetName.replace("Blank ", "").replace("s", "");
+                            const duration = parseFloat(durationStr);
+                            const holdSlider = section.querySelector('.hold');
+                            if (holdSlider) {
+                                holdSlider.value = duration;
+                                holdSlider.dispatchEvent(new Event('input'));
+                                updateValueDisplay(holdSlider);
+                            }
+                        }
+                    }
+                });
+                section.querySelector('.start-preset').dispatchEvent(new Event('change'));
+
+                section.querySelector('.waveform').addEventListener('change', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.distortion-toggle').addEventListener('change', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.distortion-intensity').addEventListener('input', (e) => {
+                    if (sounds[id].distortion) sounds[id].distortion.curve = makeDistortionCurve(parseFloat(e.target.value) * 100);
+                });
+                section.querySelector('.distortion-threshold').addEventListener('input', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.chorus-toggle').addEventListener('change', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.chorus-rate').addEventListener('input', (e) => {
+                    if (sounds[id].chorusLfo) sounds[id].chorusLfo.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.chorus-depth').addEventListener('input', (e) => {
+                    if (sounds[id].chorusLfoGain) sounds[id].chorusLfoGain.gain.value = parseFloat(e.target.value) / 100 * 0.015;
+                });
+                section.querySelector('.lfo-assign').addEventListener('change', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.lfo-rate').addEventListener('input', (e) => {
+                    if (sounds[id].additionalLfo) sounds[id].additionalLfo.frequency.value = parseFloat(e.target.value);
+                });
+                section.querySelector('.lfo-depth').addEventListener('input', (e) => {
+                    if (sounds[id].additionalLfoGain) sounds[id].additionalLfoGain.gain.value = parseFloat(e.target.value) / 100 * (sounds[id].additionalLfoTarget && sounds[id].additionalLfoTarget.type === 'frequency' ? 1000 : 40);
+                });
+                section.querySelector('.noise-gate-toggle').addEventListener('change', () => {
+                    if (sounds[id].isPlaying) { hardStop(id); startSound(id); }
+                });
+                section.querySelector('.noise-gate-threshold').addEventListener('input', (e) => {
+                    if (sounds[id].noiseGate) sounds[id].noiseGate.threshold.value = parseFloat(e.target.value);
+                });
+            }
+
+            section.querySelector('.save-preset').addEventListener('click', () => savePreset(id));
+            section.querySelector('.export-preset').addEventListener('click', () => exportPreset(id));
+            section.querySelector('.import-btn').addEventListener('click', () => section.querySelector('.import-preset').click());
+            section.querySelector('.import-preset').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        try {
+                            const preset = JSON.parse(ev.target.result);
+                            applyPreset(id, preset);
+                        } catch (err) {
+                            alert('Invalid JSON file');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            section.querySelector('.export-sound').addEventListener('click', () => exportSound(id));
+        }
+
+        function updateVolumeAndWet(id) {
+            if (sounds[id].dry && sounds[id].wet) {
+                const volume = parseFloat(sounds[id].section.querySelector('.volume').value);
+                const wet = parseFloat(sounds[id].section.querySelector('.reverb').value || 0);
+                sounds[id].dry.gain.value = volume * (1 - wet);
+                sounds[id].wet.gain.value = volume * wet;
+            }
+        }
+
+        function startSound(id) {
+            hardStop(id);
+            const section = sounds[id].section;
+            const type = sounds[id].type;
+            const isLooping = section.querySelector('.loop').checked;
+            let gap = parseFloat(section.querySelector('.gap').value);
+            const now = audioCtx.currentTime;
+            let loopDuration;
+            let soundDuration = 0;
+            if (document.getElementById('bpm-sync').checked) {
+                let bpm = parseFloat(document.getElementById('bpm').value);
+                let beatTime = 60 / bpm;
+                gap = beatTime - (soundDuration % beatTime);
+                if (gap < 0) gap = 0;
+            }
+            if (type === 'sound') {
+                const attack = parseFloat(section.querySelector('.attack').value);
+                const decay = parseFloat(section.querySelector('.decay').value);
+                const hold = parseFloat(section.querySelector('.hold').value);
+                const transition = parseFloat(section.querySelector('.transition').value);
+                const effectiveHold = isLooping ? (gap === 0 ? transition : hold) : hold;
+                let pitch = parseFloat(section.querySelector('.pitch').value);
+                if (isLooping && gap === 0) pitch += (Math.random() - 0.5) * 10;
+                playVowelCycle(audioCtx, id, now, effectiveHold, pitch);
+                soundDuration = attack + decay + effectiveHold + parseFloat(section.querySelector('.release').value);
+                loopDuration = soundDuration + gap;
+            } else if (type === 'media') {
+                if (!sounds[id].buffer) return;
+                let start = parseFloat(section.querySelector('.trim-start').value);
+                let end = parseFloat(section.querySelector('.trim-end').value);
+                end = Math.min(end, sounds[id].buffer.duration);
+                start = Math.min(start, end);
+                let effectiveDuration = end - start;
+                const fadeIn = parseFloat(section.querySelector('.fadeIn').value);
+                const fadeOut = parseFloat(section.querySelector('.fadeOut').value);
+                playMediaCycle(audioCtx, id, now, effectiveDuration, fadeIn, fadeOut, start);
+                soundDuration = effectiveDuration;
+                loopDuration = effectiveDuration + gap;
+            }
+            if (isLooping) {
+                sounds[id].isLooping = true;
+                sounds[id].loopTimeout = setTimeout(() => {
+                    if (sounds[id].isLooping) startSound(id);
+                }, loopDuration * 1000);
+            }
+            sounds[id].isPlaying = true;
+        }
+
+        function playVowelCycle(ctx, id, startTime, effectiveHold, pitch) {
+            const section = sounds[id].section;
+            const startPresetValue = section.querySelector('.start-preset').value || "Saw Lead";
+            const midPresetValue = section.querySelector('.mid-preset').value || startPresetValue;
+            const endPresetValue = section.querySelector('.end-preset').value || startPresetValue;
+            const startP = synthPresets[startPresetValue] || synthPresets["Saw Lead"];
+            const midP = synthPresets[midPresetValue] || startP;
+            const endP = synthPresets[endPresetValue] || startP;
+            const transition = parseFloat(section.querySelector('.transition').value);
+            const detune = parseFloat(section.querySelector('.detune').value);
+            const hummingStrength = parseFloat(section.querySelector('.hummingStrength').value);
+            const hummingDepth = parseFloat(section.querySelector('.hummingDepth').value);
+            const hummingAmount = parseFloat(section.querySelector('.hummingAmount').value);
+            const breathinessStrength = parseFloat(section.querySelector('.breathinessStrength').value);
+            const breathinessDepth = parseFloat(section.querySelector('.breathinessDepth').value);
+            const breathinessAmount = parseFloat(section.querySelector('.breathinessAmount').value);
+            const jawJitterStrength = parseFloat(section.querySelector('.jawJitterStrength').value);
+            const jawJitterDepth = parseFloat(section.querySelector('.jawJitterDepth').value);
+            const jawJitterAmount = parseFloat(section.querySelector('.jawJitterAmount').value);
+            const vibratoRate = parseFloat(section.querySelector('.vibratoRate').value);
+            const vibratoDepth = parseFloat(section.querySelector('.vibratoDepth').value);
+            let attack = parseFloat(section.querySelector('.attack').value);
+            let decay = parseFloat(section.querySelector('.decay').value);
+            const sustain = parseFloat(section.querySelector('.sustain').value);
+            let release = parseFloat(section.querySelector('.release').value);
+            let fadeIn = parseFloat(section.querySelector('.fadeIn').value);
+            let fadeOut = parseFloat(section.querySelector('.fadeOut').value);
+            const wet = parseFloat(section.querySelector('.reverb').value);
+            const volume = parseFloat(section.querySelector('.volume').value);
+            const pitchJitterRate = parseFloat(section.querySelector('.pitchJitterRate').value);
+            const pitchJitterDepth = parseFloat(section.querySelector('.pitchJitterDepth').value);
+            const amplitudeShimmerRate = parseFloat(section.querySelector('.amplitudeShimmerRate').value);
+            const amplitudeShimmerDepth = parseFloat(section.querySelector('.amplitudeShimmerDepth').value);
+            const waveform = section.querySelector('.waveform').value;
+            const distortionToggle = section.querySelector('.distortion-toggle').checked;
+            const distortionIntensity = parseFloat(section.querySelector('.distortion-intensity').value);
+            const distortionThreshold = parseFloat(section.querySelector('.distortion-threshold').value);
+            const chorusToggle = section.querySelector('.chorus-toggle').checked;
+            const chorusRate = parseFloat(section.querySelector('.chorus-rate').value);
+            const chorusDepth = parseFloat(section.querySelector('.chorus-depth').value);
+            const lfoAssign = section.querySelector('.lfo-assign').value;
+            const lfoRate = parseFloat(section.querySelector('.lfo-rate').value);
+            const lfoDepth = parseFloat(section.querySelector('.lfo-depth').value);
+            const noiseGateToggle = section.querySelector('.noise-gate-toggle').checked;
+            const noiseGateThreshold = parseFloat(section.querySelector('.noise-gate-threshold').value);
+            const destination = (ctx === audioCtx) ? masterGain : ctx.destination;
+            const minRampTime = 0.001;
+            attack = Math.max(attack, minRampTime);
+            decay = Math.max(decay, minRampTime);
+            release = Math.max(release, minRampTime);
+            if (fadeIn === 0) fadeIn = minRampTime;
+            if (fadeOut === 0) fadeOut = minRampTime;
+            const glottalWave = createGlottalWave(ctx);
+            sounds[id].osc1 = createOscillator(ctx, pitch, glottalWave, waveform);
+            sounds[id].osc2 = createOscillator(ctx, pitch * Math.pow(2, detune / 1200), glottalWave, waveform);
+            sounds[id].oscGain = createGainNode(ctx, 0);
+            sounds[id].formants = [
+                createPeakingFilter(ctx, startP.f1, 5, startP.g1),
+                createPeakingFilter(ctx, startP.f2, 5, startP.g2),
+                createPeakingFilter(ctx, startP.f3, 5, startP.g3),
+                createPeakingFilter(ctx, startP.f4, 5, startP.g4),
+                createPeakingFilter(ctx, startP.f5, 5, startP.g5),
+                createPeakingFilter(ctx, startP.f6, 5, startP.g6)
+            ];
+            sounds[id].nasal = createPeakingFilter(ctx, hummingDepth, hummingAmount, hummingStrength);
+            sounds[id].envelope = createGainNode(ctx, 0);
+            sounds[id].fadeGain = createGainNode(ctx, 0);
+            sounds[id].dry = createGainNode(ctx, volume * (1 - wet));
+            sounds[id].wet = createGainNode(ctx, volume * wet);
+            const bufferSize = ctx.sampleRate * 2;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) noiseData[i] = Math.random() * 2 - 1;
+            sounds[id].breathNoise = ctx.createBufferSource();
+            sounds[id].breathNoise.buffer = noiseBuffer;
+            sounds[id].breathNoise.loop = true;
+            sounds[id].breathFilter = ctx.createBiquadFilter();
+            sounds[id].breathFilter.type = 'bandpass';
+            sounds[id].breathFilter.frequency.value = breathinessDepth;
+            sounds[id].breathFilter.Q.value = breathinessAmount;
+            sounds[id].breathGain = createGainNode(ctx, breathinessStrength);
+            sounds[id].breathNoise.connect(sounds[id].breathFilter);
+            sounds[id].breathFilter.connect(sounds[id].breathGain);
+            sounds[id].breathGain.connect(sounds[id].envelope);
+            sounds[id].osc1.connect(sounds[id].oscGain);
+            sounds[id].osc2.connect(sounds[id].oscGain);
+            sounds[id].oscGain.connect(sounds[id].formants[0]);
+            chainNodes(sounds[id].formants);
+            sounds[id].formants[sounds[id].formants.length - 1].connect(sounds[id].nasal);
+            let postNasal = sounds[id].nasal;
+            sounds[id].eq1 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq1-freq').value), 1, parseFloat(section.querySelector('.eq1-gain').value));
+            sounds[id].eq2 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq2-freq').value), 1, parseFloat(section.querySelector('.eq2-gain').value));
+            sounds[id].eq3 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq3-freq').value), 1, parseFloat(section.querySelector('.eq3-gain').value));
+            postNasal.connect(sounds[id].eq1);
+            sounds[id].eq1.connect(sounds[id].eq2);
+            sounds[id].eq2.connect(sounds[id].eq3);
+            let postEQ = sounds[id].eq3;
+            if (distortionToggle) {
+                sounds[id].distortion = ctx.createWaveShaper();
+                sounds[id].distortion.curve = makeDistortionCurve(distortionIntensity * 100);
+                sounds[id].distortion.oversample = '4x';
+                postEQ.connect(sounds[id].distortion);
+                postEQ = sounds[id].distortion;
+            }
+            let postDistortion = postEQ;
+            if (chorusToggle) {
+                const chorusInput = createGainNode(ctx, 1);
+                postDistortion.connect(chorusInput);
+                sounds[id].chorusDelay = ctx.createDelay(0.03);
+                sounds[id].chorusLfo = ctx.createOscillator();
+                sounds[id].chorusLfo.type = 'sine';
+                sounds[id].chorusLfo.frequency.value = chorusRate;
+                sounds[id].chorusLfoGain = createGainNode(ctx, chorusDepth / 100 * 0.015);
+                sounds[id].chorusLfo.connect(sounds[id].chorusLfoGain);
+                sounds[id].chorusLfoGain.connect(sounds[id].chorusDelay.delayTime);
+                chorusInput.connect(sounds[id].chorusDelay);
+                const feedback = createGainNode(ctx, 0.4);
+                sounds[id].chorusDelay.connect(feedback);
+                feedback.connect(sounds[id].chorusDelay);
+                sounds[id].chorusWet = createGainNode(ctx, 0.5);
+                sounds[id].chorusDelay.connect(sounds[id].chorusWet);
+                sounds[id].chorusDry = createGainNode(ctx, 0.5);
+                chorusInput.connect(sounds[id].chorusDry);
+                const chorusOutput = createGainNode(ctx, 1);
+                sounds[id].chorusDry.connect(chorusOutput);
+                sounds[id].chorusWet.connect(chorusOutput);
+                sounds[id].chorusLfo.start(startTime);
+                postDistortion = chorusOutput;
+            }
+            let postChorus = postDistortion;
+            if (noiseGateToggle) {
+                sounds[id].noiseGate = ctx.createDynamicsCompressor();
+                sounds[id].noiseGate.threshold.value = noiseGateThreshold;
+                sounds[id].noiseGate.knee.value = 0;
+                sounds[id].noiseGate.ratio.value = 20;
+                sounds[id].noiseGate.attack.value = 0.001;
+                sounds[id].noiseGate.release.value = 0.05;
+                postChorus.connect(sounds[id].noiseGate);
+                postChorus = sounds[id].noiseGate;
+            }
+            postChorus.connect(sounds[id].envelope);
+            sounds[id].envelope.connect(sounds[id].fadeGain);
+            sounds[id].panner = ctx.createStereoPanner();
+            sounds[id].panner.pan.value = parseFloat(section.querySelector('.pan').value);
+            sounds[id].fadeGain.connect(sounds[id].panner);
+            sounds[id].panner.connect(sounds[id].dry);
+            sounds[id].dry.connect(destination);
+            const reverbNode = createReverb(ctx);
+            sounds[id].panner.connect(reverbNode);
+            reverbNode.connect(sounds[id].wet);
+            sounds[id].wet.connect(destination);
+            if (vibratoDepth > 0) {
+                sounds[id].lfo = ctx.createOscillator();
+                sounds[id].lfo.type = 'sine';
+                sounds[id].lfo.frequency.value = vibratoRate;
+                sounds[id].lfoGain = createGainNode(ctx, vibratoDepth);
+                sounds[id].lfo.connect(sounds[id].lfoGain);
+                sounds[id].lfoGain.connect(sounds[id].osc1.detune);
+                sounds[id].lfoGain.connect(sounds[id].osc2.detune);
+                sounds[id].lfo.start(startTime);
+            }
+            sounds[id].jitterLFO = ctx.createOscillator();
+            sounds[id].jitterLFO.type = 'sine';
+            sounds[id].jitterLFO.frequency.value = pitchJitterRate;
+            sounds[id].jitterGain = createGainNode(ctx, pitchJitterDepth);
+            sounds[id].jitterLFO.connect(sounds[id].jitterGain);
+            sounds[id].jitterGain.connect(sounds[id].osc1.detune);
+            sounds[id].jitterGain.connect(sounds[id].osc2.detune);
+            sounds[id].jitterLFO.start(startTime);
+            sounds[id].shimmerLFO = ctx.createOscillator();
+            sounds[id].shimmerLFO.type = 'sine';
+            sounds[id].shimmerLFO.frequency.value = amplitudeShimmerRate;
+            sounds[id].shimmerGain = createGainNode(ctx, amplitudeShimmerDepth);
+            sounds[id].shimmerLFO.connect(sounds[id].shimmerGain);
+            sounds[id].shimmerGain.connect(sounds[id].envelope.gain);
+            sounds[id].shimmerLFO.start(startTime);
+            sounds[id].formantLFO = ctx.createOscillator();
+            sounds[id].formantLFO.type = 'sine';
+            sounds[id].formantLFO.frequency.value = jawJitterAmount;
+            sounds[id].formantLFOGain = createGainNode(ctx, jawJitterDepth);
+            sounds[id].formantLFO.connect(sounds[id].formantLFOGain);
+            sounds[id].formants.forEach(formant => {
+                sounds[id].formantLFOGain.connect(formant.frequency);
+            });
+            sounds[id].formantLFO.start(startTime);
+            if (lfoAssign !== 'none') {
+                sounds[id].additionalLfo = ctx.createOscillator();
+                sounds[id].additionalLfo.type = 'sine';
+                sounds[id].additionalLfo.frequency.value = lfoRate;
+                const isFreq = lfoAssign.startsWith('f');
+                const index = parseInt(lfoAssign[1]) - 1;
+                sounds[id].additionalLfoTarget = isFreq ? sounds[id].formants[index].frequency : sounds[id].formants[index].gain;
+                const scale = isFreq ? 1000 : 40;
+                sounds[id].additionalLfoGain = createGainNode(ctx, lfoDepth / 100 * scale);
+                sounds[id].additionalLfo.connect(sounds[id].additionalLfoGain);
+                sounds[id].additionalLfoGain.connect(sounds[id].additionalLfoTarget);
+                sounds[id].additionalLfo.start(startTime);
+            }
+            sounds[id].oscGain.gain.setValueAtTime(0, startTime);
+            sounds[id].oscGain.gain.linearRampToValueAtTime(1, startTime + 0.005);
+            sounds[id].envelope.gain.setValueAtTime(0, startTime);
+            sounds[id].envelope.gain.linearRampToValueAtTime(1, startTime + attack);
+            sounds[id].envelope.gain.linearRampToValueAtTime(sustain, startTime + attack + decay);
+            const releaseStart = startTime + attack + decay + effectiveHold;
+            sounds[id].envelope.gain.setValueAtTime(sustain, releaseStart);
+            sounds[id].envelope.gain.linearRampToValueAtTime(0, releaseStart + release);
+            if (transition > 0) {
+                const rampStart = startTime + attack + decay;
+                const segmentTime = Math.min(transition / 2, effectiveHold / 2);
+                const rampMid = rampStart + segmentTime;
+                const rampEnd = rampMid + segmentTime;
+                const keys = ['f1', 'g1', 'f2', 'g2', 'f3', 'g3', 'f4', 'g4', 'f5', 'g5', 'f6', 'g6'];
+                for (let i = 0; i < 6; i++) {
+                    const freqStart = startP[keys[i*2]];
+                    const gainStart = startP[keys[i*2 + 1]];
+                    const freqMid = midP[keys[i*2]];
+                    const gainMid = midP[keys[i*2 + 1]];
+                    const freqEnd = endP[keys[i*2]];
+                    const gainEnd = endP[keys[i*2 + 1]];
+                    sounds[id].formants[i].frequency.setValueAtTime(freqStart, rampStart);
+                    sounds[id].formants[i].frequency.exponentialRampToValueAtTime(freqMid, rampMid);
+                    sounds[id].formants[i].frequency.exponentialRampToValueAtTime(freqEnd, rampEnd);
+                    sounds[id].formants[i].gain.setValueAtTime(gainStart, rampStart);
+                    sounds[id].formants[i].gain.linearRampToValueAtTime(gainMid, rampMid);
+                    sounds[id].formants[i].gain.linearRampToValueAtTime(gainEnd, rampEnd);
+                }
+            }
+            const totalDuration = attack + decay + effectiveHold + release;
+            const curveLength = 1024;
+            if (fadeIn > 0) {
+                const fadeInCurve = new Float32Array(curveLength);
+                for (let i = 0; i < curveLength; i++) {
+                    const t = i / (curveLength - 1);
+                    fadeInCurve[i] = (1 - Math.cos(Math.PI * t)) / 2;
+                }
+                sounds[id].fadeGain.gain.setValueCurveAtTime(fadeInCurve, startTime, fadeIn);
+            } else {
+                sounds[id].fadeGain.gain.setValueAtTime(1, startTime);
+            }
+            if (fadeOut > 0) {
+                const fadeOutCurve = new Float32Array(curveLength);
+                for (let i = 0; i < curveLength; i++) {
+                    const t = i / (curveLength - 1);
+                    fadeOutCurve[i] = (1 + Math.cos(Math.PI * t)) / 2;
+                }
+                sounds[id].fadeGain.gain.setValueCurveAtTime(fadeOutCurve, startTime + totalDuration - fadeOut, fadeOut);
+            }
+            sounds[id].osc1.start(startTime);
+            sounds[id].osc2.start(startTime);
+            sounds[id].breathNoise.start(startTime);
+            sounds[id].timeout = setTimeout(() => cleanupSound(id), (totalDuration) * 1000 + 100);
+        }
+
+        function playMediaCycle(ctx, id, startTime, duration, fadeIn, fadeOut, trimStart = 0) {
+            const section = sounds[id].section;
+            const wet = parseFloat(section.querySelector('.reverb').value || 0);
+            const volume = parseFloat(section.querySelector('.volume').value);
+            const destination = (ctx === audioCtx) ? masterGain : ctx.destination;
+            const minRampTime = 0.001;
+            if (fadeIn === 0) fadeIn = minRampTime;
+            if (fadeOut === 0) fadeOut = minRampTime;
+            let buffer = sounds[id].buffer;
+            if (section.querySelector('.reverse').checked) {
+                let reversedBuffer = ctx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+                for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+                    let data = buffer.getChannelData(ch);
+                    let revData = reversedBuffer.getChannelData(ch);
+                    for (let i = 0; i < buffer.length; i++) revData[i] = data[buffer.length - i - 1];
+                }
+                buffer = reversedBuffer;
+            }
+            sounds[id].source = ctx.createBufferSource();
+            sounds[id].source.buffer = buffer;
+            sounds[id].source.playbackRate.value = parseFloat(section.querySelector('.playback-speed').value || 1);
+            sounds[id].source.detune.value = parseFloat(section.querySelector('.pitch-shift').value || 0);
+            sounds[id].fadeGain = createGainNode(ctx, 0);
+            sounds[id].dry = createGainNode(ctx, volume * (1 - wet));
+            sounds[id].wet = createGainNode(ctx, volume * wet);
+            let chain = sounds[id].source;
+            sounds[id].eq1 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq1-freq').value), 1, parseFloat(section.querySelector('.eq1-gain').value));
+            sounds[id].eq2 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq2-freq').value), 1, parseFloat(section.querySelector('.eq2-gain').value));
+            sounds[id].eq3 = createPeakingFilter(ctx, parseFloat(section.querySelector('.eq3-freq').value), 1, parseFloat(section.querySelector('.eq3-gain').value));
+            chain.connect(sounds[id].eq1);
+            sounds[id].eq1.connect(sounds[id].eq2);
+            sounds[id].eq2.connect(sounds[id].eq3);
+            chain = sounds[id].eq3;
+            chain.connect(sounds[id].fadeGain);
+            sounds[id].panner = ctx.createStereoPanner();
+            sounds[id].panner.pan.value = parseFloat(section.querySelector('.pan').value);
+            sounds[id].fadeGain.connect(sounds[id].panner);
+            sounds[id].panner.connect(sounds[id].dry);
+            sounds[id].dry.connect(destination);
+            const reverbNode = createReverb(ctx);
+            sounds[id].panner.connect(reverbNode);
+            reverbNode.connect(sounds[id].wet);
+            sounds[id].wet.connect(destination);
+            if (fadeIn > duration) fadeIn = duration / 2;
+            if (fadeOut > duration) fadeOut = duration / 2;
+            const curveLength = 1024;
+            if (fadeIn > 0) {
+                const fadeInCurve = new Float32Array(curveLength);
+                for (let i = 0; i < curveLength; i++) {
+                    const t = i / (curveLength - 1);
+                    fadeInCurve[i] = (1 - Math.cos(Math.PI * t)) / 2;
+                }
+                sounds[id].fadeGain.gain.setValueCurveAtTime(fadeInCurve, startTime, fadeIn);
+            } else {
+                sounds[id].fadeGain.gain.setValueAtTime(1, startTime);
+            }
+            if (fadeOut > 0) {
+                const fadeOutCurve = new Float32Array(curveLength);
+                for (let i = 0; i < curveLength; i++) {
+                    const t = i / (curveLength - 1);
+                    fadeOutCurve[i] = (1 + Math.cos(Math.PI * t)) / 2;
+                }
+                sounds[id].fadeGain.gain.setValueCurveAtTime(fadeOutCurve, startTime + duration - fadeOut, fadeOut);
+            }
+            sounds[id].source.start(startTime, trimStart, duration);
+            sounds[id].timeout = setTimeout(() => cleanupSound(id), duration * 1000 + 100);
+        }
+
+        function cleanupSound(id) {
+            const type = sounds[id].type;
+            if (type === 'sound') {
+                if (sounds[id].osc1) try { sounds[id].osc1.stop(); } catch {}
+                if (sounds[id].osc2) try { sounds[id].osc2.stop(); } catch {}
+                if (sounds[id].lfo) try { sounds[id].lfo.stop(); } catch {}
+                if (sounds[id].jitterLFO) try { sounds[id].jitterLFO.stop(); } catch {}
+                if (sounds[id].shimmerLFO) try { sounds[id].shimmerLFO.stop(); } catch {}
+                if (sounds[id].formantLFO) try { sounds[id].formantLFO.stop(); } catch {}
+                if (sounds[id].breathNoise) try { sounds[id].breathNoise.stop(); } catch {}
+                if (sounds[id].chorusLfo) try { sounds[id].chorusLfo.stop(); } catch {}
+                if (sounds[id].additionalLfo) try { sounds[id].additionalLfo.stop(); } catch {}
+                sounds[id].osc1 = null;
+                sounds[id].osc2 = null;
+                sounds[id].oscGain = null;
+                sounds[id].formants = [];
+                sounds[id].nasal = null;
+                sounds[id].lfo = null;
+                sounds[id].lfoGain = null;
+                sounds[id].jitterLFO = null;
+                sounds[id].jitterGain = null;
+                sounds[id].shimmerLFO = null;
+                sounds[id].shimmerGain = null;
+                sounds[id].formantLFO = null;
+                sounds[id].formantLFOGain = null;
+                sounds[id].breathNoise = null;
+                sounds[id].breathFilter = null;
+                sounds[id].breathGain = null;
+                sounds[id].distortion = null;
+                sounds[id].chorusLfo = null;
+                sounds[id].chorusLfoGain = null;
+                sounds[id].chorusDelay = null;
+                sounds[id].chorusWet = null;
+                sounds[id].chorusDry = null;
+                sounds[id].additionalLfo = null;
+                sounds[id].additionalLfoGain = null;
+                sounds[id].noiseGate = null;
+                sounds[id].eq1 = null;
+                sounds[id].eq2 = null;
+                sounds[id].eq3 = null;
+            } else if (type === 'media') {
+                if (sounds[id].source) try { sounds[id].source.stop(); } catch {}
+                sounds[id].source = null;
+                sounds[id].eq1 = null;
+                sounds[id].eq2 = null;
+                sounds[id].eq3 = null;
+            }
+            sounds[id].envelope = null;
+            sounds[id].fadeGain = null;
+            sounds[id].dry = null;
+            sounds[id].wet = null;
+            sounds[id].panner = null;
+            sounds[id].isPlaying = false;
+            const playButton = sounds[id].section.querySelector('.play-sound');
+            if (playButton && !sounds[id].isLooping) {
+                playButton.textContent = 'Play';
+            }
+        }
+
+        function pauseSound(id) {
+            sounds[id].isLooping = false;
+            clearTimeout(sounds[id].loopTimeout);
+            const type = sounds[id].type;
+            const section = sounds[id].section;
+            if (sounds[id].fadeGain) {
+                const now = audioCtx.currentTime;
+                sounds[id].fadeGain.gain.cancelScheduledValues(now);
+                sounds[id].fadeGain.gain.setValueAtTime(sounds[id].fadeGain.gain.value, now);
+                let releaseTime = type === 'sound' ? parseFloat(section.querySelector('.release').value) : parseFloat(section.querySelector('.fadeOut').value);
+                sounds[id].fadeGain.gain.linearRampToValueAtTime(0, now + Math.max(releaseTime, 0.001));
+                if (type === 'media' && sounds[id].source) sounds[id].source.stop(now + releaseTime);
+                clearTimeout(sounds[id].timeout);
+                sounds[id].timeout = setTimeout(() => cleanupSound(id), (releaseTime * 1000) + 100);
+            } else {
+                cleanupSound(id);
+            }
+            sounds[id].isPlaying = false;
+        }
+
+        function hardStop(id) {
+            sounds[id].isLooping = false;
+            clearTimeout(sounds[id].loopTimeout);
+            if (sounds[id].envelope) {
+                const now = audioCtx.currentTime;
+                sounds[id].envelope.gain.cancelScheduledValues(now);
+                sounds[id].envelope.gain.setValueAtTime(0, now);
+            }
+            if (sounds[id].fadeGain) {
+                const now = audioCtx.currentTime;
+                sounds[id].fadeGain.gain.cancelScheduledValues(now);
+                sounds[id].fadeGain.gain.setValueAtTime(0, now);
+            }
+            clearTimeout(sounds[id].timeout);
+            cleanupSound(id);
+            sounds[id].isPlaying = false;
+        }
+
+        function resetSound(id) {
+            const section = sounds[id].section;
+            hardStop(id);
+            const loopEl = section.querySelector('.loop');
+            if (loopEl) loopEl.checked = false;
+            const gapEl = section.querySelector('.gap');
+            if (gapEl) { gapEl.value = 0; gapEl.dispatchEvent(new Event('input')); updateValueDisplay(gapEl); }
+            const fadeInEl = section.querySelector('.fadeIn');
+            if (fadeInEl) { fadeInEl.value = 0.05; fadeInEl.dispatchEvent(new Event('input')); updateValueDisplay(fadeInEl); }
+            const fadeOutEl = section.querySelector('.fadeOut');
+            if (fadeOutEl) { fadeOutEl.value = 0.08; fadeOutEl.dispatchEvent(new Event('input')); updateValueDisplay(fadeOutEl); }
+            const volumeEl = section.querySelector('.volume');
+            if (volumeEl) { volumeEl.value = 0.7; volumeEl.dispatchEvent(new Event('input')); updateValueDisplay(volumeEl); }
+            const panEl = section.querySelector('.pan');
+            if (panEl) { panEl.value = 0; panEl.dispatchEvent(new Event('input')); updateValueDisplay(panEl); }
+            const reverbEl = section.querySelector('.reverb');
+            if (reverbEl) { reverbEl.value = 0.2; reverbEl.dispatchEvent(new Event('input')); updateValueDisplay(reverbEl); }
+            if (sounds[id].type === 'sound') {
+                const transitionEl = section.querySelector('.transition');
+                if (transitionEl) { transitionEl.value = 0; transitionEl.dispatchEvent(new Event('input')); updateValueDisplay(transitionEl); }
+                const pitchEl = section.querySelector('.pitch');
+                if (pitchEl) { pitchEl.value = 110; pitchEl.dispatchEvent(new Event('input')); updateValueDisplay(pitchEl); }
+                const attackEl = section.querySelector('.attack');
+                if (attackEl) { attackEl.value = 0.05; attackEl.dispatchEvent(new Event('input')); updateValueDisplay(attackEl); }
+                const decayEl = section.querySelector('.decay');
+                if (decayEl) { decayEl.value = 0.2; decayEl.dispatchEvent(new Event('input')); updateValueDisplay(decayEl); }
+                const sustainEl = section.querySelector('.sustain');
+                if (sustainEl) { sustainEl.value = 0.8; sustainEl.dispatchEvent(new Event('input')); updateValueDisplay(sustainEl); }
+                const releaseEl = section.querySelector('.release');
+                if (releaseEl) { releaseEl.value = 0.3; releaseEl.dispatchEvent(new Event('input')); updateValueDisplay(releaseEl); }
+                const holdEl = section.querySelector('.hold');
+                if (holdEl) { holdEl.value = 2; holdEl.dispatchEvent(new Event('input')); updateValueDisplay(holdEl); }
+                section.querySelector('.start-preset').value = "Saw Lead";
+                section.querySelector('.start-preset').dispatchEvent(new Event('change'));
+            }
+        }
+
+        function savePreset(id) {
+            const section = sounds[id].section;
+            const preset = {};
+            section.querySelectorAll('input, select').forEach(el => {
+                const className = el.className;
+                if (className && !['load-preset', 'import-preset'].includes(className)) {
+                    preset[className] = el.type === 'checkbox' ? el.checked : el.value;
+                }
+            });
+            const name = prompt('Preset Name:');
+            if (name) {
+                let presets = JSON.parse(localStorage.getItem('asm_presets') || '[]');
+                presets.push({ name, id, data: preset });
+                localStorage.setItem('asm_presets', JSON.stringify(presets));
+                populatePresetDropdowns();
+            }
+        }
+
+        function applyPreset(id, preset) {
+            const section = sounds[id].section;
+            for (let key in preset) {
+                const el = section.querySelector(`.${key}`);
+                if (el) {
+                    if (el.type === 'checkbox') el.checked = preset[key];
+                    else if (el.tagName === 'SELECT') { el.value = preset[key]; el.dispatchEvent(new Event('change')); }
+                    else { el.value = preset[key]; el.dispatchEvent(new Event('input')); updateValueDisplay(el); }
+                }
+            }
+        }
+
+        function exportPreset(id) {
+            const section = sounds[id].section;
+            const preset = {};
+            section.querySelectorAll('input, select').forEach(el => {
+                const className = el.className;
+                if (className && !['load-preset', 'import-preset'].includes(className)) {
+                    preset[className] = el.type === 'checkbox' ? el.checked : el.value;
+                }
+            });
+            const name = prompt('Export Preset Name:');
+            if (name) {
+                const blob = new Blob([JSON.stringify(preset)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}.preasm`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        async function exportSound(id) {
+            const type = sounds[id].type;
+            const section = sounds[id].section;
+            const wasLoop = section.querySelector('.loop').checked;
+            section.querySelector('.loop').checked = false;
+            let duration;
+            let offlineCtx;
+            if (type === 'sound') {
+                const attack = parseFloat(section.querySelector('.attack').value);
+                const decay = parseFloat(section.querySelector('.decay').value);
+                const hold = parseFloat(section.querySelector('.hold').value);
+                const release = parseFloat(section.querySelector('.release').value);
+                duration = attack + decay + hold + release + 0.5;
+                offlineCtx = new OfflineAudioContext(2, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+                const pitch = parseFloat(section.querySelector('.pitch').value);
+                playVowelCycle(offlineCtx, id, 0, hold, pitch);
+            } else if (type === 'media') {
+                let start = parseFloat(section.querySelector('.trim-start').value);
+                let end = parseFloat(section.querySelector('.trim-end').value);
+                if (end > sounds[id].buffer.duration) end = sounds[id].buffer.duration;
+                if (start > end) start = 0;
+                duration = end - start + 0.5;
+                offlineCtx = new OfflineAudioContext(2, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+                const fadeIn = parseFloat(section.querySelector('.fadeIn').value);
+                const fadeOut = parseFloat(section.querySelector('.fadeOut').value);
+                playMediaCycle(offlineCtx, id, 0, duration, fadeIn, fadeOut, start);
+            }
+            const buffer = await offlineCtx.startRendering();
+            const wavBlob = audioBufferToWav(buffer);
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `asm_sound_${id}.wav`;
+            a.click();
+            URL.revokeObjectURL(url);
+            section.querySelector('.loop').checked = wasLoop;
+        }
+
+        function saveSequence() {
+            const sequence = { steps: [], gap: document.getElementById('sequenceGap').value, loop: document.getElementById('loopSequence').checked };
+            document.querySelectorAll('.sequencer-row').forEach(row => {
+                const soundId = row.dataset.soundId;
+                const checks = Array.from(row.querySelectorAll('input[type="checkbox"]')).map(cb => cb.checked);
+                sequence.steps.push({ soundId, checks });
+            });
+            const presets = [];
+            Object.keys(sounds).forEach(id => {
+                const section = sounds[id].section;
+                const presetData = {};
+                section.querySelectorAll('input, select').forEach(el => {
+                    const className = el.className;
+                    if (className && !['load-preset', 'import-preset'].includes(className)) {
+                        presetData[className] = el.type === 'checkbox' ? el.checked : el.value;
+                    }
+                });
+                presets.push({ id, data: presetData });
+            });
+            const fullData = { sequence, presets };
+            const name = prompt('Sequence Name:');
+            if (name) {
+                let sequences = JSON.parse(localStorage.getItem('asm_sequences') || '[]');
+                sequences.push({ name, data: fullData });
+                localStorage.setItem('asm_sequences', JSON.stringify(sequences));
+                populateSequenceDropdown();
+            }
+        }
+
+        function loadSequence(value) {
+            let sequences = JSON.parse(localStorage.getItem('asm_sequences') || '[]');
+            const selectedSeq = sequences.find(s => s.name === value);
+            if (selectedSeq) {
+                const fullData = selectedSeq.data;
+                const maxSoundNum = fullData.presets.reduce((max, p) => Math.max(max, p.id.charCodeAt(0) - 64), 0);
+                while (soundCount < maxSoundNum) document.getElementById('addSound').click();
+                fullData.presets.forEach(p => {
+                    if (sounds[p.id]) applyPreset(p.id, p.data);
+                });
+                const newSteps = fullData.sequence.steps[0] ? fullData.sequence.steps[0].checks.length : 8;
+                while (sequencerSteps > newSteps) removeSequencerStep();
+                while (sequencerSteps < newSteps) addSequencerStep();
+                fullData.sequence.steps.forEach(step => {
+                    const row = document.querySelector(`.sequencer-row[data-sound-id="${step.soundId}"]`);
+                    if (row) {
+                        const cbs = row.querySelectorAll('input[type="checkbox"]');
+                        step.checks.forEach((checked, i) => {
+                            if (cbs[i]) cbs[i].checked = checked;
+                        });
+                    }
+                });
+                document.getElementById('sequenceGap').value = fullData.sequence.gap;
+                updateValueDisplay(document.getElementById('sequenceGap'));
+                document.getElementById('loopSequence').checked = fullData.sequence.loop;
+            }
+        }
+
+        function exportSequence() {
+            const sequence = { steps: [], gap: document.getElementById('sequenceGap').value, loop: document.getElementById('loopSequence').checked };
+            document.querySelectorAll('.sequencer-row').forEach(row => {
+                const soundId = row.dataset.soundId;
+                const checks = Array.from(row.querySelectorAll('input[type="checkbox"]')).map(cb => cb.checked);
+                sequence.steps.push({ soundId, checks });
+            });
+            const presets = [];
+            Object.keys(sounds).forEach(id => {
+                const section = sounds[id].section;
+                const presetData = {};
+                section.querySelectorAll('input, select').forEach(el => {
+                    const className = el.className;
+                    if (className && !['load-preset', 'import-preset'].includes(className)) {
+                        presetData[className] = el.type === 'checkbox' ? el.checked : el.value;
+                    }
+                });
+                presets.push({ id, data: presetData });
+            });
+            const fullData = { sequence, presets };
+            const name = prompt('Export Sequence Name:');
+            if (name) {
+                const blob = new Blob([JSON.stringify(fullData)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}.preasm`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function importSequence(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const fullData = JSON.parse(ev.target.result);
+                    const maxSoundNum = fullData.presets.reduce((max, p) => Math.max(max, p.id.charCodeAt(0) - 64), 0);
+                    while (soundCount < maxSoundNum) document.getElementById('addSound').click();
+                    fullData.presets.forEach(p => {
+                        if (sounds[p.id]) applyPreset(p.id, p.data);
+                    });
+                    const newSteps = fullData.sequence.steps[0] ? fullData.sequence.steps[0].checks.length : 8;
+                    while (sequencerSteps > newSteps) removeSequencerStep();
+                    while (sequencerSteps < newSteps) addSequencerStep();
+                    fullData.sequence.steps.forEach(step => {
+                        const row = document.querySelector(`.sequencer-row[data-sound-id="${step.soundId}"]`);
+                        if (row) {
+                            const cbs = row.querySelectorAll('input[type="checkbox"]');
+                            step.checks.forEach((checked, i) => {
+                                if (cbs[i]) cbs[i].checked = checked;
+                            });
+                        }
+                    });
+                    document.getElementById('sequenceGap').value = fullData.sequence.gap;
+                    updateValueDisplay(document.getElementById('sequenceGap'));
+                    document.getElementById('loopSequence').checked = fullData.sequence.loop;
+                } catch (err) {
+                    alert('Invalid JSON file');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function exportSequenceAudio() {
+            const wasSeqLoop = document.getElementById('loopSequence').checked;
+            const wasSoundLoops = {};
+            Object.keys(sounds).forEach(id => {
+                wasSoundLoops[id] = sounds[id].section.querySelector('.loop').checked;
+                sounds[id].section.querySelector('.loop').checked = false;
+            });
+            document.getElementById('loopSequence').checked = false;
+            let totalDuration = 0;
+            const stepMaxDs = [];
+            for (let step = 1; step <= sequencerSteps; step++) {
+                let maxD = 0;
+                document.querySelectorAll(`input[type="checkbox"][data-step="${step}"]:checked`).forEach(checkbox => {
+                    const id = checkbox.dataset.soundId;
+                    const type = sounds[id].type;
+                    let dur = 0;
+                    const sec = sounds[id].section;
+                    if (type === 'sound') {
+                        const a = parseFloat(sec.querySelector('.attack').value);
+                        const d = parseFloat(sec.querySelector('.decay').value);
+                        const h = parseFloat(sec.querySelector('.hold').value);
+                        const r = parseFloat(sec.querySelector('.release').value);
+                        dur = a + d + h + r;
+                    } else if (type === 'media') {
+                        let start = parseFloat(sec.querySelector('.trim-start').value);
+                        let end = parseFloat(sec.querySelector('.trim-end').value);
+                        if (end > sounds[id].buffer.duration) end = sounds[id].buffer.duration;
+                        if (start > end) start = 0;
+                        dur = end - start;
+                    }
+                    if (dur > maxD) maxD = dur;
+                });
+                stepMaxDs.push(maxD);
+                totalDuration += maxD;
+            }
+            if (totalDuration === 0) {
+                alert('No sounds in sequence.');
+                document.getElementById('loopSequence').checked = wasSeqLoop;
+                Object.keys(sounds).forEach(id => sounds[id].section.querySelector('.loop').checked = wasSoundLoops[id]);
+                return;
+            }
+            totalDuration += 0.5;
+            const offlineCtx = new OfflineAudioContext(2, audioCtx.sampleRate * totalDuration, audioCtx.sampleRate);
+            let currentTime = 0;
+            for (let step = 1; step <= sequencerSteps; step++) {
+                document.querySelectorAll(`input[type="checkbox"][data-step="${step}"]:checked`).forEach(checkbox => {
+                    const id = checkbox.dataset.soundId;
+                    const type = sounds[id].type;
+                    const section = sounds[id].section;
+                    if (type === 'sound') {
+                        const hold = parseFloat(section.querySelector('.hold').value);
+                        const pitch = parseFloat(section.querySelector('.pitch').value);
+                        playVowelCycle(offlineCtx, id, currentTime, hold, pitch);
+                    } else if (type === 'media') {
+                        let start = parseFloat(section.querySelector('.trim-start').value);
+                        let end = parseFloat(section.querySelector('.trim-end').value);
+                        if (end > sounds[id].buffer.duration) end = sounds[id].buffer.duration;
+                        if (start > end) start = 0;
+                        let effectiveDuration = end - start;
+                        const fadeIn = parseFloat(section.querySelector('.fadeIn').value);
+                        const fadeOut = parseFloat(section.querySelector('.fadeOut').value);
+                        playMediaCycle(offlineCtx, id, currentTime, effectiveDuration, fadeIn, fadeOut, start);
+                    }
+                });
+                currentTime += stepMaxDs[step - 1];
+            }
+            const buffer = await offlineCtx.startRendering();
+            const wavBlob = audioBufferToWav(buffer);
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'asm_sequence.wav';
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('loopSequence').checked = wasSeqLoop;
+            Object.keys(sounds).forEach(id => sounds[id].section.querySelector('.loop').checked = wasSoundLoops[id]);
+        }
+
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length * numChannels * 2 + 44;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + buffer.length * numChannels * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, buffer.length * numChannels * 2, true);
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+        }
+
+        function addSequencerRow(id) {
+            const container = document.getElementById('sequencer-rows');
+            const row = document.createElement('div');
+            row.className = 'sequencer-row';
+            row.dataset.soundId = id;
+            const label = document.createElement('div');
+            label.className = 'sequencer-label';
+            label.textContent = id;
+            row.appendChild(label);
+            const steps = document.createElement('div');
+            steps.className = 'sequencer-steps';
+            row.appendChild(steps);
+            for (let step = 1; step <= sequencerSteps; step++) {
+                const stepBox = document.createElement('div');
+                stepBox.className = 'sequencer-step';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset.soundId = id;
+                checkbox.dataset.step = step;
+                stepBox.appendChild(checkbox);
+                steps.appendChild(stepBox);
+            }
+            container.appendChild(row);
+        }
+
+        function addSequencerStep() {
+            sequencerSteps++;
+            document.querySelectorAll('.sequencer-row').forEach(row => {
+                const steps = row.querySelector('.sequencer-steps');
+                const stepBox = document.createElement('div');
+                stepBox.className = 'sequencer-step';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset.soundId = row.dataset.soundId;
+                checkbox.dataset.step = sequencerSteps;
+                stepBox.appendChild(checkbox);
+                steps.appendChild(stepBox);
+            });
+        }
+
+        function removeSequencerStep() {
+            if (sequencerSteps <= 2) return;
+            document.querySelectorAll('.sequencer-row').forEach(row => {
+                const steps = row.querySelector('.sequencer-steps');
+                steps.lastChild.remove();
+            });
+            sequencerSteps--;
+        }
+
+        document.getElementById('playSequence').addEventListener('click', () => {
+            audioCtx.resume();
+            sequenceIsLooping = document.getElementById('loopSequence').checked;
+            isPlayingSequence = true;
+            playStep(1);
+        });
+
+        function playStep(step) {
+            if (!isPlayingSequence) return;
+            currentStep = step;
+            let maxDuration = 0;
+            document.querySelectorAll(`input[type="checkbox"][data-step="${step}"]:checked`).forEach(checkbox => {
+                const id = checkbox.dataset.soundId;
+                startSound(id);
+                let soundDuration = 0;
+                const type = sounds[id].type;
+                const section = sounds[id].section;
+                if (type === 'sound') {
+                    const attack = parseFloat(section.querySelector('.attack').value);
+                    const decay = parseFloat(section.querySelector('.decay').value);
+                    const hold = parseFloat(section.querySelector('.hold').value);
+                    const release = parseFloat(section.querySelector('.release').value);
+                    soundDuration = attack + decay + hold + release;
+                } else if (type === 'media') {
+                    let start = parseFloat(section.querySelector('.trim-start').value);
+                    let end = parseFloat(section.querySelector('.trim-end').value);
+                    if (end > sounds[id].buffer.duration) end = sounds[id].buffer.duration;
+                    if (start > end) start = 0;
+                    soundDuration = end - start;
+                }
+                if (soundDuration > maxDuration) maxDuration = soundDuration;
+            });
+            let nextStep = step + 1;
+            let extraDelay = 0;
+            if (nextStep > sequencerSteps) {
+                if (sequenceIsLooping) {
+                    nextStep = 1;
+                    extraDelay = parseFloat(document.getElementById('sequenceGap').value);
+                } else {
+                    isPlayingSequence = false;
+                    return;
+                }
+            }
+            const totalDelay = maxDuration + extraDelay;
+            sequenceStepTimeout = setTimeout(() => playStep(nextStep), totalDelay * 1000);
+        }
+
+        document.getElementById('stopSequence').addEventListener('click', () => {
+            isPlayingSequence = false;
+            sequenceIsLooping = false;
+            clearTimeout(sequenceStepTimeout);
+            currentStep = 0;
+            Object.keys(sounds).forEach(id => hardStop(id));
+        });
+
+        document.getElementById('increaseSequence').addEventListener('click', addSequencerStep);
+        document.getElementById('decreaseSequence').addEventListener('click', removeSequencerStep);
+
+        document.querySelector('.save-sequence').addEventListener('click', saveSequence);
+        document.getElementById('load-sequence').addEventListener('change', (e) => loadSequence(e.target.value));
+        document.querySelector('.export-sequence').addEventListener('click', exportSequence);
+        document.querySelector('.import-sequence-btn').addEventListener('click', () => document.getElementById('import-sequence').click());
+        document.getElementById('import-sequence').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) importSequence(file);
+        });
+        document.getElementById('export-sequence-audio').addEventListener('click', exportSequenceAudio);
+
+        document.getElementById('import-audio-btn').addEventListener('click', () => document.getElementById('import-audio').click());
+        document.getElementById('import-audio').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                soundCount++;
+                const label = String.fromCharCode(64 + soundCount);
+                const newSoundSection = document.querySelector('.sound-section').cloneNode(true);
+                newSoundSection.dataset.soundId = label;
+                newSoundSection.querySelector('h2').textContent = `Media ${label}: ${file.name}`;
+                document.getElementById('sounds-container').appendChild(newSoundSection);
+                initSound(label, newSoundSection, 'media');
+                addFineTuneButtons(newSoundSection);
+                addSequencerRow(label);
+                const arrayBuffer = await file.arrayBuffer();
+                sounds[label].buffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const trimEnd = newSoundSection.querySelector('.trim-end');
+                if (trimEnd) {
+                    trimEnd.value = sounds[label].buffer.duration.toFixed(1);
+                    updateValueDisplay(trimEnd);
+                }
+            }
+        });
+
+        let mediaRecorderVar;
+        let recordedChunksVar = [];
+        let recordingStartTimeVar;
+        let timerIntervalVar;
+
+        document.getElementById('startRecord').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorderVar = new MediaRecorder(stream);
+                mediaRecorderVar.start();
+                recordedChunksVar = [];
+                mediaRecorderVar.addEventListener('dataavailable', e => recordedChunksVar.push(e.data));
+                mediaRecorderVar.addEventListener('stop', () => {
+                    const blob = new Blob(recordedChunksVar, { type: 'audio/webm' });
+                    document.getElementById('recordPlayer').src = URL.createObjectURL(blob);
+                });
+                recordingStartTimeVar = Date.now();
+                document.getElementById('startRecord').classList.add('recording');
+                document.getElementById('startRecord').textContent = 'Recording...';
+                timerIntervalVar = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTimeVar) / 1000);
+                    const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const seconds = String(elapsed % 60).padStart(2, '0');
+                    document.getElementById('recordTimer').textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            } catch (err) {
+                alert('Could not access microphone.');
+            }
+        });
+
+        document.getElementById('stopRecord').addEventListener('click', () => {
+            if (mediaRecorderVar) mediaRecorderVar.stop();
+            document.getElementById('startRecord').classList.remove('recording');
+            document.getElementById('startRecord').textContent = 'Start Record';
+            clearInterval(timerIntervalVar);
+            document.getElementById('recordTimer').textContent = '00:00';
+        });
+
+        document.getElementById('playRecord').addEventListener('click', () => {
+            const player = document.getElementById('recordPlayer');
+            if (player.src) player.play();
+        });
+
+        document.getElementById('exportRecord').addEventListener('click', async () => {
+            if (recordedChunksVar.length === 0) return;
+            const blob = new Blob(recordedChunksVar, { type: 'audio/webm' });
+            const arrayBuffer = await blob.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            const wavBlob = audioBufferToWav(audioBuffer);
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recorded.wav';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        function addFineTuneButtons(section) {
+            section.querySelectorAll('.slider-box input[type="range"]').forEach(slider => {
+                const controls = slider.closest('.slider-controls');
+                if (controls) {
+                    controls.querySelector('.minus').addEventListener('click', () => adjustSlider(slider, -parseFloat(slider.step)));
+                    controls.querySelector('.plus').addEventListener('click', () => adjustSlider(slider, parseFloat(slider.step)));
+                    slider.addEventListener('input', () => updateValueDisplay(slider));
+                }
+            });
+        }
+
+        function adjustSlider(slider, delta) {
+            let newValue = parseFloat(slider.value) + delta;
+            newValue = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), newValue));
+            const decimalPlaces = (slider.step.toString().split('.')[1] || '').length;
+            slider.value = newValue.toFixed(decimalPlaces);
+            slider.dispatchEvent(new Event('input'));
+            updateValueDisplay(slider);
+        }
+
+        function updateValueDisplay(slider) {
+            const display = slider.closest('.slider-controls').querySelector('.value-display');
+            if (display) display.textContent = slider.value;
+        }
+
+        function updateGlobalEffects() {
+            if (document.getElementById('compressor-toggle').checked) {
+                if (!globalCompressor) {
+                    globalCompressor = audioCtx.createDynamicsCompressor();
+                    globalMakeup = createGainNode(audioCtx, 1);
+                    masterGain.disconnect(audioCtx.destination);
+                    masterGain.connect(globalCompressor);
+                    globalCompressor.connect(globalMakeup);
+                    globalMakeup.connect(audioCtx.destination);
+                }
+                globalCompressor.threshold.value = parseFloat(document.getElementById('compressor-threshold').value);
+                globalCompressor.ratio.value = parseFloat(document.getElementById('compressor-ratio').value);
+                globalMakeup.gain.value = Math.pow(10, parseFloat(document.getElementById('compressor-makeup').value) / 20);
+            } else if (globalCompressor) {
+                masterGain.disconnect(globalCompressor);
+                masterGain.connect(audioCtx.destination);
+                globalCompressor = null;
+                globalMakeup = null;
+            }
+            if (document.getElementById('delay-toggle').checked) {
+                if (!globalDelay) {
+                    globalDelay = audioCtx.createDelay(2);
+                    globalFeedback = createGainNode(audioCtx, 0);
+                    globalDelayWet = createGainNode(audioCtx, 0.5);
+                    globalDelayDry = createGainNode(audioCtx, 0.5);
+                    masterGain.connect(globalDelayDry);
+                    globalDelayDry.connect(audioCtx.destination);
+                    masterGain.connect(globalDelay);
+                    globalDelay.connect(globalFeedback);
+                    globalFeedback.connect(globalDelay);
+                    globalDelay.connect(globalDelayWet);
+                    globalDelayWet.connect(audioCtx.destination);
+                }
+                globalDelay.delayTime.value = parseFloat(document.getElementById('delay-time').value);
+                globalFeedback.gain.value = parseFloat(document.getElementById('delay-feedback').value);
+            } else if (globalDelay) {
+                masterGain.disconnect(globalDelay);
+                masterGain.disconnect(globalDelayDry);
+                globalDelay = null;
+                globalFeedback = null;
+                globalDelayWet = null;
+                globalDelayDry = null;
+                masterGain.connect(audioCtx.destination);
+            }
+            if (!globalEQ1) {
+                globalEQ1 = createPeakingFilter(audioCtx, 250, 1, 0);
+                globalEQ2 = createPeakingFilter(audioCtx, 1000, 1, 0);
+                globalEQ3 = createPeakingFilter(audioCtx, 5000, 1, 0);
+                masterGain.connect(globalEQ1);
+                globalEQ1.connect(globalEQ2);
+                globalEQ2.connect(globalEQ3);
+                globalEQ3.connect(audioCtx.destination);
+            }
+            globalEQ1.frequency.value = parseFloat(document.getElementById('global-eq1-freq').value);
+            globalEQ1.gain.value = parseFloat(document.getElementById('global-eq1-gain').value);
+            globalEQ2.frequency.value = parseFloat(document.getElementById('global-eq2-freq').value);
+            globalEQ2.gain.value = parseFloat(document.getElementById('global-eq2-gain').value);
+            globalEQ3.frequency.value = parseFloat(document.getElementById('global-eq3-freq').value);
+            globalEQ3.gain.value = parseFloat(document.getElementById('global-eq3-gain').value);
+        }
+
+        document.querySelectorAll('#master-controls input').forEach(input => {
+            input.addEventListener('input', updateGlobalEffects);
+            input.addEventListener('change', updateGlobalEffects);
+        });
+        updateGlobalEffects();
+
+        // Final initialization
+        initSound('A', document.querySelector('.sound-section'));
+        addFineTuneButtons(document.querySelector('.sound-section'));
+        addSequencerRow('A');
+        populatePresetDropdowns();
+        populateSequenceDropdown();
+        document.querySelector('.start-preset').value = "Saw Lead";
+        document.querySelector('.start-preset').dispatchEvent(new Event('change'));
+        const sequenceGap = document.getElementById('sequenceGap');
+        sequenceGap.addEventListener('input', () => updateValueDisplay(sequenceGap));
+        document.querySelectorAll('#sequencer .slider-controls button').forEach(btn => {
+            btn.addEventListener('click', () => adjustSlider(sequenceGap, btn.textContent === '-' ? -parseFloat(sequenceGap.step) : parseFloat(sequenceGap.step)));
+        });
+        updateValueDisplay(sequenceGap);
+    </script>
+</body>
+</html>
